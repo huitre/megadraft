@@ -143,11 +143,24 @@ export class SideMenu extends Component {
     });
   }
 
+  isSelectedBlockEmpty() {
+    const editorState = this.props.editorState;
+    const selectionState = editorState.getSelection();
+    const currentContent = this.props.editorState.getCurrentContent();
+    const currentContentBlock = currentContent.getBlockForKey(selectionState.getAnchorKey());
+    return currentContentBlock.getText().length === 0;
+  }
+
   render() {
     const className = classNames("sidemenu", {
       "sidemenu--open": this.state.open,
       "sidemenu--horizontal": this.props.isHorizontal,
     });
+
+
+    if (this.props.onlyOnEmptyBlock && !this.isSelectedBlockEmpty()) {
+      return <span />;
+    }
 
     return (
       <li className={className}>
@@ -254,6 +267,7 @@ export default class SideBar extends Component {
               plugins={this.getValidSidebarPlugins()}
               maxSidebarButtons={this.props.maxSidebarButtons}
               modalOptions={this.props.modalOptions}
+              onlyOnEmptyBlock={this.props.onlyOnEmptyBlock}
               isHorizontal={this.props.sidebarHorizontal}
               />
           </ul>

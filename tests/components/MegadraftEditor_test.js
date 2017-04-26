@@ -45,7 +45,8 @@ class MegadraftEditorWrapper extends Component {
         onChange={this.props.onChange}
         keyBindings={this.props.keyBindings}
         blocksWithoutStyleReset={this.props.blocksWithoutStyleReset}
-        resetStyleNewLine={this.props.resetStyleNewLine}/>
+        resetStyleNewLine={this.props.resetStyleNewLine}
+        sidebarOnlyOnEmptyBlock={this.props.sidebarOnlyOnEmptyBlock}/>
     );
   }
 }
@@ -121,7 +122,15 @@ describe("MegadraftEditor Component", () => {
             "rightsHolder": "By Tim Marshall"
           },
           "entityRanges": []
-        }
+        },
+        {
+          "key": "6i98s",
+          "text": "",
+          "type": "unstyled",
+          "depth": 0,
+          "inlineStyleRanges": [],
+          "entityRanges": []
+        },
       ]
     };
 
@@ -162,6 +171,7 @@ describe("MegadraftEditor Component", () => {
         blocksWithoutStyleReset={blocksWithoutStyleReset}
         resetStyleNewLine={resetStyleOff}/>
     );
+
   });
 
   it("renders without problems", function() {
@@ -552,6 +562,7 @@ describe("MegadraftEditor Component", () => {
         maxSidebarButtons= {this.maxSidebarButtons}
         sidebarRendererFn={renderCustomSidebar}
         modalOptions={this.modalOptions}
+        sidebarOnlyOnEmptyBlock={false} />
         sidebarHorizontal={false}/>
     );
 
@@ -563,6 +574,7 @@ describe("MegadraftEditor Component", () => {
       readOnly: false,
       maxSidebarButtons: this.maxSidebarButtons,
       modalOptions: this.modalOptions,
+      onlyOnEmptyBlock: false,
       sidebarHorizontal: false,
     };
     expect(renderCustomSidebar.calledWith(expectedProps)).to.be.true;
@@ -630,5 +642,31 @@ describe("MegadraftEditor Component", () => {
     expect(toolbar.prop("entityInputs")).to.equal(this.component.entityInputs);
     expect(toolbar.prop("editorState")).to.equal(this.editorState);
     expect(toolbar.prop("readOnly")).to.equal(false);
+  });
+  it("sould not render sidebar on empty block", function () {
+    const editorState = EditorState.acceptSelection(this.editorState, SelectionState.createEmpty("ag6qs"));
+    const wrapperWithEmptyBlock = mount(
+      <MegadraftEditorWrapper
+        editorState={editorState}
+        onChange={this.component.onChange}
+        plugins={[image]}
+        sidebarOnlyOnEmptyBlock={true}/>
+    );
+    const sidebar = wrapperWithEmptyBlock.find(Sidebar);
+    const contentSidebar = sidebar.find(".sidebar__sidemenu-wrapper");
+    expect(contentSidebar.children().length).to.equal(1);
+  });
+  it("sould render sidebar on empty block", function () {
+    const editorState = EditorState.acceptSelection(this.editorState, SelectionState.createEmpty("6i98s"));
+    const wrapperWithEmptyBlock = mount(
+      <MegadraftEditorWrapper
+        editorState={editorState}
+        onChange={this.component.onChange}
+        plugins={[image]}
+        sidebarOnlyOnEmptyBlock={true}/>
+    );
+    const sidebar = wrapperWithEmptyBlock.find(Sidebar);
+    const contentSidebar = sidebar.find(".sidebar__sidemenu-wrapper .sidemenu");
+    expect(contentSidebar.children().length).to.be.at.least(2);
   });
 });
